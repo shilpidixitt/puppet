@@ -1,0 +1,75 @@
+[root@ip-172-31-28-158 modules]# cat test1.pp
+notify {'Hello World': }
+
+file { '/etc/motd' :
+  ensure => 'file',
+  content => 'Welcome to my server',
+}
+
+file { 'Message File':
+  ensure => 'file',
+  content => 'Welcome to my server',
+  path => '/etc/motd',
+}
+[root@ip-172-31-28-158 modules]#
+
+
+Error: Evaluation Error: Error while evaluating a Resource Statement, Cannot alias File[Message File] to ["/etc/motd"] at /opt/puppetlabs/puppet/modules/test1.pp:8; resource ["File", "/etc/motd"] already declared at /opt/puppetlabs/puppet/modules/test1.pp:3 at /opt/puppetlabs/puppet/modules/test1.pp:8:1 on node ip-172-31-28-158.ap-south-1.compute.internal
+[root@ip-172-31-28-158 modules]# puppet apply test1.pp
+
+
+=====================================================
+Changed content>>>
+
+[root@ip-172-31-28-158 modules]# cat test1.pp
+notify {'Hello World': }
+
+file { '/etc/motd1' :
+  ensure => 'file',
+  content => 'Welcome to my server',
+}
+
+file { 'Message File':
+  ensure => 'file',
+  content => 'Welcome to my server',
+  path => '/etc/motd',
+}
+[root@ip-172-31-28-158 modules]#
+
+[root@ip-172-31-28-158 modules]# puppet apply test1.pp
+Notice: Compiled catalog for ip-172-31-28-158.ap-south-1.compute.internal in environment production in 0.07 seconds
+Notice: Hello World
+Notice: /Stage[main]/Main/Notify[Hello World]/message: defined 'message' as 'Hello World'
+Notice: /Stage[main]/Main/File[/etc/motd1]/ensure: defined content as '{md5}16ffa55d51200cb594cf25ae0023e835'
+Notice: /Stage[main]/Main/File[Message File]/content: content changed '{md5}d41d8cd98f00b204e9800998ecf8427e' to '{md5}16ffa55d51200cb594cf25ae0023e835'
+Notice: Applied catalog in 0.04 seconds
+
+
+
+[root@ip-172-31-28-158 modules]# cat /etc/motd1
+Welcome to my server[root@ip-172-31-28-158 modules]# cat /etc/motd
+Welcome to my server[root@ip-172-31-28-158 modules]#
+=================================================
+Added a new user 
+user { 'bob':
+  ensure => 'present',
+  managehome => true,
+  groups => ['sudo', 'users'],
+  password => pw_hash('Password1','SHA-512','salt'),
+}
+
+
+
+[root@ip-172-31-28-158 modules]# puppet apply test1.pp
+Error: Evaluation Error: Unknown function: 'pw_hash'. at /opt/puppetlabs/puppet/modules/test1.pp:56:15 on node ip-172-31-28-158.ap-south-1.compute.internal
+
+
+
+
+[root@ip-172-31-28-158 modules]# puppet module install puppetlabs-stdlib --version 4.23.0
+Notice: Preparing to install into /etc/puppetlabs/code/environments/production/modules ...
+Notice: Downloading from https://forgeapi.puppet.com ...
+Notice: Installing -- do not interrupt ...
+/etc/puppetlabs/code/environments/production/modules
++-- puppetlabs-stdlib (v4.23.0)
+[root@ip-172-31-28-158 modules]#
